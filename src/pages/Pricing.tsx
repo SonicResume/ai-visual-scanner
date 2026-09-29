@@ -135,7 +135,7 @@ export default function PricingPage() {
       {/* Background Glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute left-0 top-0 h-[500px] w-[500px] rounded-full bg-blue-700/20 blur-3xl" />
-        <div className="absolute right-0 bottom-0 h-[500px] w-[500px] rounded-full bg-yellow-500/10 blur-3xl" />
+        <div className="absolute right-0 bottom-0 h-[500px] w-[500px] rounded-full bg-[#35D07F]/10 blur-3xl" />
       </div>
 
       <section className="relative z-10 max-w-7xl mx-auto px-6 py-24">
@@ -146,7 +146,7 @@ export default function PricingPage() {
 
           <h1 className="text-6xl font-black tracking-tight">
             Choose Your
-            <span className="block bg-gradient-to-r from-blue-400 via-blue-300 to-yellow-400 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-blue-400 via-blue-300 to-[#35D07F] bg-clip-text text-transparent">
               NOAH Plan
             </span>
           </h1>
@@ -166,12 +166,12 @@ export default function PricingPage() {
                 key={plan.planKey}
                 className={`relative rounded-3xl border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl overflow-hidden ${
                   featured
-                    ? "border-yellow-400 shadow-[0_0_60px_rgba(250,204,21,.15)] bg-zinc-900"
+                    ? "border-[#35D07F] shadow-[0_0_60px_rgba(250,204,21,.15)] bg-zinc-900"
                     : "border-zinc-800 bg-zinc-950"
                 }`}
               >
                 {featured && (
-                  <div className="bg-gradient-to-r from-orange-500 to-orange-400 text-white text-center py-3 font-bold">
+                  <div className="bg-gradient-to-r from-[#35D07F] to-[#2DBA70] text-white text-center py-3 font-bold">
                     ★ MOST POPULAR ★
                   </div>
                 )}
@@ -194,7 +194,7 @@ export default function PricingPage() {
                     disabled={loading !== null}
                     className={`mt-8 w-full rounded-xl py-4 font-bold text-lg transition ${
                       featured
-                        ? "bg-gradient-to-r from-yellow-400 to-yellow-300 text-black hover:scale-105"
+                        ? "bg-gradient-to-r from-[#35D07F] to-[#2DBA70] text-black hover:scale-105"
                         : plan.planKey === "free"
                         ? "bg-zinc-800 hover:bg-zinc-700"
                         : "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400"
@@ -213,7 +213,7 @@ export default function PricingPage() {
                         key={feature}
                         className="flex items-start gap-3"
                       >
-                        <div className="text-yellow-400 mt-0.5">
+                        <div className="text-[#35D07F] mt-0.5">
                           ✓
                         </div>
 

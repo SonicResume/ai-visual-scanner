@@ -27,6 +27,7 @@ import Pricing from './pages/Pricing';
 import Success from './pages/Success';
 import Terms from './pages/Terms';
 import Contact from './pages/Contact';
+import Dashboard from './pages/Dashboard';
 import ImageCaptureDialogDesktop from './components/ImageCaptureDialogDesktop';
 import ImageCaptureDialogMobile from './components/ImageCaptureDialogMobile';
 
@@ -495,6 +496,7 @@ function App() {
 
         <Route path="/camera" element={<CameraPage />} />
         <Route path="/" element={<LandingPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/app" element={<MainContent />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/contact" element={<Contact />} />

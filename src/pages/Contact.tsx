@@ -2,12 +2,12 @@ export default function ContactPage() {
   return (
     <div
       style={{
-        background:
-          "linear-gradient(135deg, #1e1b4b 0%, #0b3b5f 50%, #052e2b 100%)",
+        background: "#F7F2EC",
         minHeight: "100vh",
         padding: "80px 20px",
         textAlign: "center",
         fontFamily: "sans-serif",
+        color: "#171717",
       }}
     >
       {/* HEADER */}
@@ -15,7 +15,7 @@ export default function ContactPage() {
         style={{
           fontSize: 40,
           marginBottom: 10,
-          color: "#e2e8f0",
+          color: "#171717",
           fontWeight: 900,
           letterSpacing: "-1px",
         }}
@@ -25,13 +25,13 @@ export default function ContactPage() {
 
       <p
         style={{
-          color: "#a5b4fc",
+          color: "#6B625B",
           fontWeight: 700,
           marginBottom: 40,
           fontSize: 16,
         }}
       >
-        Connect with the language + accessibility platform
+        Connect with the NOAH AI Visual Scanner team
       </p>
 
       {/* CARD */}
@@ -41,11 +41,9 @@ export default function ContactPage() {
           margin: "0 auto",
           padding: 40,
           borderRadius: 18,
-          background:
-            "linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
-          border: "1px solid rgba(148,163,184,0.25)",
-          boxShadow: "0 20px 50px rgba(0,0,0,0.45)",
-          backdropFilter: "blur(10px)",
+          background: "#FFFFFF",
+          border: "1px solid #DDD2C7",
+          boxShadow: "0 20px 50px rgba(66, 45, 30, 0.08)",
         }}
       >
         <div
@@ -64,14 +62,13 @@ export default function ContactPage() {
               display: "block",
               padding: 14,
               borderRadius: 12,
-              border: "1px solid rgba(168,85,247,0.4)",
-              background:
-                "linear-gradient(90deg, #8b5cf6, #3b82f6)",
-              color: "#0b0f19",
+              border: "1px solid #2DBA70",
+              background: "#35D07F",
+              color: "#07140D",
               fontWeight: "900",
               fontSize: 14,
               textDecoration: "none",
-              boxShadow: "0 8px 20px rgba(59,130,246,0.25)",
+              boxShadow: "0 8px 20px rgba(53, 208, 127, 0.18)",
               transition: "0.2s",
             }}
           >
@@ -87,14 +84,13 @@ export default function ContactPage() {
               display: "block",
               padding: 14,
               borderRadius: 12,
-              border: "1px solid rgba(34,197,94,0.4)",
-              background:
-                "linear-gradient(90deg, #22c55e, #3b82f6)",
-              color: "#0b0f19",
+              border: "1px solid #DDD2C7",
+              background: "#F1EAE2",
+              color: "#2F241F",
               fontWeight: "900",
               fontSize: 14,
               textDecoration: "none",
-              boxShadow: "0 8px 20px rgba(34,197,94,0.25)",
+              boxShadow: "0 8px 20px rgba(66, 45, 30, 0.08)",
               transition: "0.2s",
             }}
           >
