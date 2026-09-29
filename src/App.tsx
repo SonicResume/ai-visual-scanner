@@ -1,13 +1,37 @@
 import { useState, useRef, useEffect } from 'react';
-import { Upload, Copy, Download, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import {
+  Upload,
+  Copy,
+  Download,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+  Camera,
+} from 'lucide-react';
+
 import Navbar from './components/Navbar';
 import History from './components/History';
-import Features from './components/Features';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import About from './components/About';
+import Footer from './components/Footer';
+
+import { Routes, Route, Link } from 'react-router-dom';
+
 import { ModelService } from './services/modelService';
 import { useHistory } from './hooks/useHistory';
+import type { HistoryEntry } from './hooks/useHistory';
 import { validateImageFile } from './utils/fileValidation';
+
+import LandingPage from './pages/LandingPage';
+import Login from './pages/Login';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase';
+import Logout from './pages/Logout';
+import Pricing from './pages/Pricing';
+import Success from './pages/Success';
+import Terms from './pages/Terms';
+import Contact from './pages/Contact';
+import { WebCamera } from './components/WebCamera';
+import ImageCaptureDialogDesktop from './components/ImageCaptureDialogDesktop';
+import ImageCaptureDialogMobile from './components/ImageCaptureDialogMobile';
 
 interface OCRResult {
   text: string;
@@ -15,16 +39,43 @@ interface OCRResult {
   source: 'tesseract' | 'tf' | 'combined';
 }
 
+function ToolTabs() {
+  return (
+    <div className="mb-8 flex justify-center">
+      <div className="inline-flex rounded-xl border border-[#DDD2C7] bg-white p-1">
+        <Link
+          to="/app"
+          className="rounded-lg bg-[#35D07F] px-5 py-2.5 text-sm font-semibold text-[#07140D]"
+        >
+          Scanner
+        </Link>
+
+        <Link
+          to="/camera"
+          className="rounded-lg px-5 py-2.5 text-sm font-semibold text-[#6B625B] hover:bg-[#F7F2EC]"
+        >
+          Camera
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function MainContent() {
   const [image, setImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [ocrResult, setOcrResult] = useState<OCRResult | null>(null);
   const [editableText, setEditableText] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStatus, setProcessingStatus] = useState<string>('');
-  const [modelStatus, setModelStatus] = useState<string>('Initializing models...');
+  const [modelStatus, setModelStatus] = useState<string>(
+    'Initializing models...'
+  );
   const [uploadError, setUploadError] = useState<string | null>(null);
+
   const { history, addEntry, removeEntry, clearHistory } = useHistory();
   const [isHistoryOpen, setIsHistoryOpen] = useState(true);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -34,17 +85,21 @@ function MainContent() {
       try {
         const modelService = ModelService.getInstance();
         await modelService.ready;
+
         if (!cancelled) {
           setModelStatus(
             modelService.isEnhanced()
-              ? 'Models initialized successfully (custom model active)'
-              : 'Models initialized successfully'
+             ? 'Ready to scan (custom model active)'
+             : 'Ready to scan'
           );
         }
       } catch (error) {
         console.error('Model initialization error:', error);
+
         if (!cancelled) {
-          setModelStatus('Error initializing models. Some features may be limited.');
+          setModelStatus(
+            'Error initializing models. Some features may be limited.'
+          );
         }
       }
     };
@@ -58,21 +113,34 @@ function MainContent() {
 
   const loadAndProcessFile = (file: File) => {
     const validation = validateImageFile(file);
+
     if (!validation.valid) {
-      setUploadError(validation.error ?? 'This file cannot be processed.');
+      setUploadError(
+        validation.error ?? 'This file cannot be processed.'
+      );
       return;
     }
+
     setUploadError(null);
+    setSelectedFile(file);
+    setOcrResult(null);
+    setEditableText('');
+    setProcessingStatus('');
+
     const reader = new FileReader();
+
     reader.onloadend = () => {
       setImage(reader.result as string);
-      processImage(file);
     };
+
     reader.readAsDataURL(file);
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
+
     if (file) {
       loadAndProcessFile(file);
     }
@@ -80,10 +148,12 @@ function MainContent() {
 
   const handleReselect = () => {
     setImage(null);
+    setSelectedFile(null);
     setOcrResult(null);
     setEditableText('');
     setProcessingStatus('');
     setUploadError(null);
+
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -92,7 +162,7 @@ function MainContent() {
   const processImage = async (imageFile: File) => {
     setIsProcessing(true);
     setProcessingStatus('Processing image...');
-    
+
     try {
       const modelService = ModelService.getInstance();
       const result = await modelService.processImage(imageFile);
@@ -100,7 +170,9 @@ function MainContent() {
       const newResult = {
         text: result.text,
         confidence: result.confidence,
-        source: (modelService.isEnhanced() ? 'combined' : 'tesseract') as OCRResult['source']
+        source: (
+          modelService.isEnhanced() ? 'combined' : 'tesseract'
+        ) as OCRResult['source'],
       };
 
       setOcrResult(newResult);
@@ -115,12 +187,28 @@ function MainContent() {
     }
   };
 
-  const selectFromHistory = (text: string) => {
-    setEditableText(text);
+  const handleRunOCR = () => {
+    if (selectedFile) {
+      processImage(selectedFile);
+    }
+  };
+
+  const selectFromHistory = (entry: HistoryEntry) => {
+    if (entry.imageData) {
+      setImage(entry.imageData);
+      setSelectedFile(null);
+      setOcrResult(null);
+      setEditableText('');
+      setProcessingStatus('');
+      setUploadError(null);
+      return;
+    }
+
+    setEditableText(entry.text);
   };
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       <History
         history={history}
         onSelect={selectFromHistory}
@@ -130,24 +218,33 @@ function MainContent() {
         onToggle={() => setIsHistoryOpen(!isHistoryOpen)}
       />
 
-      <div className={`flex-1 min-h-screen bg-[var(--cream-bg)] transition-all duration-300 ${isHistoryOpen ? 'ml-64' : 'ml-0'}`}>
-        <Navbar />
+      <div
+        className={`flex-1 min-h-screen bg-[#F7F2EC] transition-all duration-300 ${
+          isHistoryOpen ? 'ml-64' : 'ml-0'
+        }`}
+      >
+
         <div className="py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
+            <ToolTabs />
             <div className="text-center mb-8 paper-card p-8">
-              <h1 className="mt-3 text-4xl font-bold text-[var(--text-brown)] italic">
-                ScribeLens: Handwritten Text Recognition
-              </h1>
-              <p className="mt-4 text-lg text-[var(--text-brown)] opacity-80">
-                Upload an image containing handwritten text to convert it into
-                digital format using advanced OCR technology
-              </p>
+             <h1 className="mt-3 text-4xl font-bold text-[#2f241f]">
+               NOAH AI Visual Scanner
+            </h1>
+
+            <p className="mt-4 text-lg text-[#5c493d] opacity-80">
+               Upload, drag and drop, or capture an image to recognize text and
+               turn it into editable digital content.
+            </p>
+
               {modelStatus && (
-                <div className={`mt-4 p-3 rounded-lg ${
-                  modelStatus.includes('Error') 
-                    ? 'bg-red-100 text-red-700' 
-                    : 'bg-green-100 text-green-700'
-                }`}>
+                <div
+                  className={`mt-4 p-3 rounded-lg ${
+                    modelStatus.includes('Error')
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-green-100 text-green-700'
+                  }`}
+                >
                   <p className="flex items-center justify-center">
                     {modelStatus.includes('Error') && (
                       <AlertCircle className="h-5 w-5 mr-2" />
@@ -167,11 +264,14 @@ function MainContent() {
                   </p>
                 </div>
               )}
+
               <div
                 className="border-2 border-dashed border-[var(--text-brown)] rounded-lg p-12 text-center bg-[var(--paper-bg)]"
                 onDrop={(e) => {
                   e.preventDefault();
+
                   const file = e.dataTransfer.files[0];
+
                   if (file) {
                     loadAndProcessFile(file);
                   }
@@ -181,6 +281,7 @@ function MainContent() {
                 {!image ? (
                   <>
                     <Upload className="mx-auto h-16 w-16 text-[var(--text-brown)] opacity-60" />
+
                     <div className="mt-6">
                       <button
                         onClick={() => fileInputRef.current?.click()}
@@ -188,6 +289,7 @@ function MainContent() {
                       >
                         Select Image
                       </button>
+
                       <input
                         type="file"
                         ref={fileInputRef}
@@ -196,6 +298,7 @@ function MainContent() {
                         className="hidden"
                       />
                     </div>
+
                     <p className="mt-4 text-lg text-[var(--text-brown)] opacity-70">
                       or drag and drop your image here
                     </p>
@@ -207,6 +310,7 @@ function MainContent() {
                       alt="Uploaded"
                       className="max-h-96 mx-auto rounded-lg shadow-lg"
                     />
+
                     <button
                       onClick={handleReselect}
                       className="absolute top-4 right-4 upload-button p-2 rounded-full bg-white shadow-lg hover:bg-[var(--cream-bg)]"
@@ -214,6 +318,17 @@ function MainContent() {
                     >
                       <RefreshCw className="h-5 w-5" />
                     </button>
+
+                    {!isProcessing && !ocrResult && selectedFile && (
+                      <div className="mt-6">
+                        <button
+                          onClick={handleRunOCR}
+                          className="upload-button px-6 py-3 text-lg font-medium rounded-xl"
+                        >
+                          Run OCR
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -221,6 +336,7 @@ function MainContent() {
               {isProcessing && (
                 <div className="mt-8 text-center">
                   <Loader2 className="animate-spin h-10 w-10 mx-auto text-[var(--text-brown)]" />
+
                   <p className="mt-4 text-lg text-[var(--text-brown)] opacity-70">
                     {processingStatus}
                   </p>
@@ -234,30 +350,39 @@ function MainContent() {
                       <h3 className="text-xl font-medium text-[var(--text-brown)]">
                         Recognized Text
                       </h3>
+
                       <p className="text-sm text-[var(--text-brown)] opacity-70">
                         Confidence: {ocrResult.confidence.toFixed(1)}%
                       </p>
                     </div>
+
                     <div className="flex space-x-4">
                       <button
-                        onClick={() => navigator.clipboard.writeText(editableText)}
+                        onClick={() =>
+                          navigator.clipboard.writeText(editableText)
+                        }
                         className="upload-button px-4 py-2 rounded-lg flex items-center"
                       >
                         <Copy className="h-5 w-5 mr-2" />
                         Copy
                       </button>
+
                       <button
                         onClick={() => {
                           const blob = new Blob([editableText], {
                             type: 'text/plain',
                           });
+
                           const url = URL.createObjectURL(blob);
                           const a = document.createElement('a');
+
                           a.href = url;
                           a.download = 'ocr-result.txt';
+
                           document.body.appendChild(a);
                           a.click();
                           document.body.removeChild(a);
+
                           URL.revokeObjectURL(url);
                         }}
                         className="upload-button px-4 py-2 rounded-lg flex items-center"
@@ -267,6 +392,7 @@ function MainContent() {
                       </button>
                     </div>
                   </div>
+
                   <textarea
                     value={editableText}
                     onChange={(e) => setEditableText(e.target.value)}
@@ -277,21 +403,134 @@ function MainContent() {
             </div>
           </div>
         </div>
-        <Features />
+
+        <Footer />
       </div>
     </div>
   );
 }
 
-function App() {
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return isMobile;
+}
+
+function CameraPage() {
+  const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainContent />} />
-        <Route path="/about" element={<About />} />
-      </Routes>
-    </Router>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="container mx-auto flex flex-col items-center px-4 py-8 h-screen">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-6">
+            <Camera className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+          </div>
+
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+            NOAH Camera Scanner
+          </h1>
+
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            Experience seamless image capture with our responsive camera component.
+            Optimized for both desktop and mobile devices with intelligent UI adaptation.
+          </p>
+        </div>
+
+        <div className="max-w-4xl flex-1 w-full h-full">
+          <div className="bg-white dark:bg-slate-800 h-full flex items-center justify-center rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-8 md:p-12">
+            <div className="text-center">
+              <div className="space-y-4">
+                <button
+                  type="button"
+                  onClick={() => setOpen(true)}
+  className="h-12 bg-[#35D07F] hover:bg-[#2DBA70] text-[#07140D] px-8 py-3 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 cursor-pointer whitespace-nowrap"
+                >
+                  <Camera className="w-5 h-5 mr-2" />
+                  Launch Camera
+                </button>
+
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  {isMobile
+                    ? 'Mobile-optimized interface'
+                    : 'Desktop-enhanced experience'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {isMobile ? (
+        <ImageCaptureDialogMobile
+          open={open}
+          onOpenChange={setOpen}
+        />
+      ) : (
+        <ImageCaptureDialogDesktop
+          open={open}
+          onOpenChange={setOpen}
+        />
+      )}
+    </div>
   );
 }
 
-export default App;
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState(auth.currentUser);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    window.location.href = '/login';
+    return null;
+  }
+
+  return <>{children}</>;
+}
+
+function App() {
+  return (
+    <>
+      <Navbar />
+
+      <Routes>
+
+        <Route path="/camera" element={<CameraPage />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/app" element={<MainContent />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/logout" element={<Logout />} />
+        <Route path="/success" element={<Success />} />
+        </Routes>
+    </>
+  );
+}export default App;

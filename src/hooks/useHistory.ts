@@ -6,6 +6,8 @@ export interface HistoryEntry {
   confidence: number;
   source: 'tesseract' | 'tf' | 'combined';
   timestamp: number;
+  imageData?: string;
+  kind?: 'ocr' | 'image';
 }
 
 const STORAGE_KEY = 'scribelens:history';
@@ -33,28 +35,42 @@ export function useHistory() {
   const [history, setHistory] = useState<HistoryEntry[]>(() => loadHistory());
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-    } catch {
-      // Quota exceeded or storage disabled -- history still works for the
-      // current session, it just won't survive a reload.
-    }
-  }, [history]);
-
-  const addEntry = (entry: Omit<HistoryEntry, 'id' | 'timestamp'>) => {
-    const newEntry: HistoryEntry = {
-      ...entry,
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      timestamp: Date.now(),
-    };
-    setHistory((prev) => [newEntry, ...prev].slice(0, MAX_ENTRIES));
+  const reloadHistory = () => {
+    setHistory(loadHistory());
   };
 
-  const removeEntry = (id: string) => {
-    setHistory((prev) => prev.filter((entry) => entry.id !== id));
+  window.addEventListener("scribelens-history-updated", reloadHistory);
+
+  return () => {
+    window.removeEventListener(
+      "scribelens-history-updated",
+      reloadHistory
+    );
+  };
+}, []);
+
+const addEntry = (entry: Omit<HistoryEntry, 'id' | 'timestamp'>) => {
+  const newEntry: HistoryEntry = {
+    ...entry,
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    timestamp: Date.now(),
   };
 
-  const clearHistory = () => setHistory([]);
+  setHistory((prev) => [newEntry, ...prev].slice(0, MAX_ENTRIES));
+};
 
-  return { history, addEntry, removeEntry, clearHistory };
+const removeEntry = (id: string) => {
+  setHistory((prev) => {
+    const next = prev.filter((entry) => entry.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    return next;
+  });
+};
+
+const clearHistory = () => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+  setHistory([]);
+};
+
+return { history, addEntry, removeEntry, clearHistory };
 }
