@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { WebCamera } from "./WebCamera";
-import type { FacingMode, WebCameraHandler } from "@shivantra/react-web-camera";
+import type { FacingMode, WebCameraHandler } from "./WebCamera";
 
 interface Image {
   url: string;
@@ -44,15 +44,6 @@ export function ImageCaptureDialogDesktop({
    * In a real application, this is where you would perform an API call.
    */
 
-  const fileToDataUrl = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-
-    reader.readAsDataURL(file);
-  });
 
  const handleSave = async () => {
   if (images.length === 0) return;

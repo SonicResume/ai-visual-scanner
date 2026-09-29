@@ -2,7 +2,7 @@ import { Button, Dialog, DialogContent, DialogTitle } from "../ui/components";
 import { Camera, CameraOff, Loader2, RefreshCcw, Save, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { WebCamera } from "./WebCamera";
-import type { FacingMode, WebCameraHandler } from "@shivantra/react-web-camera";
+import type { FacingMode, WebCameraHandler } from "./WebCamera";
 
 interface Image {
   url: string;

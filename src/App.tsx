@@ -22,14 +22,11 @@ import { validateImageFile } from './utils/fileValidation';
 
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebase';
 import Logout from './pages/Logout';
 import Pricing from './pages/Pricing';
 import Success from './pages/Success';
 import Terms from './pages/Terms';
 import Contact from './pages/Contact';
-import { WebCamera } from './components/WebCamera';
 import ImageCaptureDialogDesktop from './components/ImageCaptureDialogDesktop';
 import ImageCaptureDialogMobile from './components/ImageCaptureDialogMobile';
 
@@ -477,7 +474,7 @@ function CameraPage() {
       {isMobile ? (
         <ImageCaptureDialogMobile
           open={open}
-          onOpenChange={setOpen}
+          onOpenChange={() => setOpen(false)}
         />
       ) : (
         <ImageCaptureDialogDesktop
@@ -487,31 +484,6 @@ function CameraPage() {
       )}
     </div>
   );
-}
-
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState(auth.currentUser);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    window.location.href = '/login';
-    return null;
-  }
-
-  return <>{children}</>;
 }
 
 function App() {
