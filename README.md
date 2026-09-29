@@ -92,4 +92,44 @@ There is no dedicated backend required for the OCR workflow. Recognition runs in
                     │     OCR Result          │
                     │ editable / copy / save  │
                     └──
+
+Future roadmap
+
+Dashboard
+
+Account overview
+Scan history and searchable documents
+Usage/scan counters
+Recent activity
+Saved OCR documents
+Account/settings area
+Scanner and Camera access from the dashboard
+Clean NOAH light-brown + green theme
+
+Proper billing
+
+Stripe Checkout
+Monthly/annual subscriptions
+Free plan with defined usage limits
+Paid tiers and entitlements
+Stripe webhook handling
+Subscription status stored server-side
+Upgrade/downgrade/cancel flow
+Billing portal
+Payment history/invoices
+Protection against users bypassing client-side limits
+
+Architecture
+
+NOAH UI
+   ↓
+Dashboard
+   ↓
+Auth / User Account
+   ↓
+Usage + Subscription Entitlements
+   ↓
+Stripe
+   ↓
+Webhook → Server Database
 ```
