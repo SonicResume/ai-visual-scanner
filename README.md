@@ -108,16 +108,16 @@ Clean NOAH light-brown + green theme
 
 Proper billing
 
-Stripe Checkout
-Monthly/annual subscriptions
-Free plan with defined usage limits
-Paid tiers and entitlements
-Stripe webhook handling
-Subscription status stored server-side
-Upgrade/downgrade/cancel flow
-Billing portal
-Payment history/invoices
-Protection against users bypassing client-side limits
+✅ Stripe Checkout
+⚠️ Monthly/annual subscriptions
+✅ Free plan with defined usage limits
+✅ Paid tiers and entitlements
+✅ Stripe webhook handling
+✅ Subscription status stored server-side
+⚠️ Upgrade/downgrade/cancel flow
+❌ Billing portal
+❌ Payment history/invoices
+⚠️ Protection against users bypassing client-side limits
 
 Architecture
 
