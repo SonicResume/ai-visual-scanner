@@ -35,10 +35,10 @@ export default function AuthPage() {
 
       if (mode === "login") {
         await signInWithEmailAndPassword(auth, email, password);
-        navigate("/app");
+        navigate("/dashboard");
       } else if (mode === "signup") {
         await createUserWithEmailAndPassword(auth, email, password);
-        navigate("/app");
+        navigate("/dashboard");
       } else if (mode === "reset") {
         await sendPasswordResetEmail(auth, email);
         setMsg("Protocol Sent. Check Inbox.");
@@ -58,7 +58,7 @@ export default function AuthPage() {
 
       // wait for auth state to settle
       setTimeout(() => {
-        navigate("/app");
+        navigate("/dashboard");
       }, 100);
     } catch (e: any) {
       setErr(e.message);

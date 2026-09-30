@@ -30,6 +30,7 @@ import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard';
 import ImageCaptureDialogDesktop from './components/ImageCaptureDialogDesktop';
 import ImageCaptureDialogMobile from './components/ImageCaptureDialogMobile';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 interface OCRResult {
   text: string;
@@ -41,6 +42,13 @@ function ToolTabs() {
   return (
     <div className="mb-8 flex justify-center">
       <div className="inline-flex rounded-xl border border-[#DDD2C7] bg-white p-1">
+        <Link
+          to="/dashboard"
+          className="rounded-lg px-5 py-2.5 text-sm font-semibold text-[#6B625B] hover:bg-[#F7F2EC]"
+        >
+          Dashboard
+        </Link>
+
         <Link
           to="/app"
           className="rounded-lg bg-[#35D07F] px-5 py-2.5 text-sm font-semibold text-[#07140D]"
@@ -58,7 +66,6 @@ function ToolTabs() {
     </div>
   );
 }
-
 function MainContent() {
   const [image, setImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -494,9 +501,17 @@ function App() {
 
       <Routes>
 
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+             <Dashboard />
+            </ProtectedRoute>
+         }
+       />
+
         <Route path="/camera" element={<CameraPage />} />
         <Route path="/" element={<LandingPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/app" element={<MainContent />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/contact" element={<Contact />} />
