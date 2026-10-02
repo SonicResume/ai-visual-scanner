@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -127,20 +127,6 @@ export default function Dashboard() {
 
     loadBilling();
   }, [user?.email]);
-
-  const todayScans = useMemo(() => {
-    const today = new Date();
-
-    return history.filter((entry) => {
-      const date = new Date(entry.timestamp);
-
-      return (
-        date.getFullYear() === today.getFullYear() &&
-        date.getMonth() === today.getMonth() &&
-        date.getDate() === today.getDate()
-      );
-    }).length;
-  }, [history]);
 
   const currentPlan = PLAN_META[billing.plan] ?? PLAN_META.free;
 

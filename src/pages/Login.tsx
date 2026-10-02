@@ -44,8 +44,10 @@ export default function AuthPage() {
         setMsg("Protocol Sent. Check Inbox.");
         setMode("login");
       }
-    } catch (e: any) {
-      setErr(e.message.replace("Firebase: ", ""));
+    
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message.replace("Firebase: ", "") : "Something went wrong"); 
+ 
     } finally {
       setLoading(false);
     }
@@ -60,8 +62,9 @@ export default function AuthPage() {
       setTimeout(() => {
         navigate("/dashboard");
       }, 100);
-    } catch (e: any) {
-      setErr(e.message);
+   
+     } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Something went wrong");   
     }
   };
 
